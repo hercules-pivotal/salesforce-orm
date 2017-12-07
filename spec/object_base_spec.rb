@@ -4,6 +4,10 @@ require_relative 'fixtures/sample_object'
 
 RSpec.describe SalesforceOrm::ObjectBase do
 
+  before(:each) do
+    SampleObject.field_map = {}
+  end
+
   before(:all) do
     @sample_field_map = {
       field1: :fieldOne,
@@ -106,7 +110,7 @@ RSpec.describe SalesforceOrm::ObjectBase do
         :make_query
       ).and_return(results)
 
-      SampleObject.scoped.update_all!(attributes)
+      SampleObject.all.update_all!(attributes)
     end
   end
 
@@ -135,7 +139,7 @@ RSpec.describe SalesforceOrm::ObjectBase do
         :make_query
       ).and_return(results)
 
-      SampleObject.scoped.destroy_all!
+      SampleObject.all.destroy_all!
     end
   end
 
@@ -157,12 +161,12 @@ RSpec.describe SalesforceOrm::ObjectBase do
     end
 
     it 'should handle record type' do
-      expect(SampleObject.scoped.to_soql).to eq('SELECT Id, CreatedDate, LastModifiedDate FROM SampleObject')
+      expect(SampleObject.all.to_soql).to eq('SELECT Id, CreatedDate, LastModifiedDate FROM SampleObject')
 
       record_type_id = 'yo'
 
       expect(SampleObject).to receive(:record_type_id).and_return(record_type_id).twice
-      expect(SampleObject.scoped.to_soql).to eq(
+      expect(SampleObject.all.to_soql).to eq(
         "SELECT Id, CreatedDate, LastModifiedDate FROM SampleObject WHERE RecordTypeId = '#{record_type_id}'"
       )
     end
@@ -171,7 +175,7 @@ RSpec.describe SalesforceOrm::ObjectBase do
   describe 'select' do
     it 'should by default select all fields' do
       assign_field_map do |field_map|
-        soql = SampleObject.scoped.to_soql
+        soql = SampleObject.all.to_soql
         expect(soql).to eq('SELECT Id, CreatedDate, LastModifiedDate, fieldOne, fieldTwo__c FROM SampleObject')
       end
     end
@@ -191,22 +195,22 @@ RSpec.describe SalesforceOrm::ObjectBase do
 
   describe 'group' do
     it 'should add group by to query' do
-      soql = SampleObject.scoped.group(:id, :created_at).to_soql
+      soql = SampleObject.all.group(:id, :created_at).to_soql
       expect(soql).to eq('SELECT Id, CreatedDate, LastModifiedDate FROM SampleObject GROUP BY Id, CreatedDate')
     end
   end
 
   describe 'order' do
     it 'should add order by to query' do
-      soql = SampleObject.scoped.order(:id).to_soql
-      expect(soql).to eq('SELECT Id, CreatedDate, LastModifiedDate FROM SampleObject ORDER BY Id')
+      soql = SampleObject.all.order(:id).to_soql
+      expect(soql).to eq('SELECT Id, CreatedDate, LastModifiedDate FROM SampleObject ORDER BY Id ASC')
     end
   end
 
   describe 'reorder' do
     it 'should reset the previous order' do
-      soql = SampleObject.scoped.order(:id).reorder(:created_at).to_soql
-      expect(soql).to eq('SELECT Id, CreatedDate, LastModifiedDate FROM SampleObject ORDER BY CreatedDate')
+      soql = SampleObject.all.order(:id).reorder(:created_at).to_soql
+      expect(soql).to eq('SELECT Id, CreatedDate, LastModifiedDate FROM SampleObject ORDER BY CreatedDate ASC')
     end
   end
 
@@ -259,28 +263,14 @@ RSpec.describe SalesforceOrm::ObjectBase do
         :each
       )
 
-      SampleObject.scoped.each
-    end
-  end
-
-  describe 'scoped' do
-    it 'should create default scope in the chain' do
-      soql = SampleObject.scoped.to_soql
-      expect(soql).to eq('SELECT Id, CreatedDate, LastModifiedDate FROM SampleObject')
+      SampleObject.all.each
     end
   end
 
   describe 'all' do
-    it 'should call restforce with given query' do
-      orm = SampleObject.where(id: [2, 332, 33])
-
-      soql = orm.to_soql
-
-      expect(SalesforceOrm::RestforceClient.instance).to receive(:query).with(
-        soql
-      ).and_return([])
-
-      orm.all
+    it 'should create default scope in the chain' do
+      soql = SampleObject.all.to_soql
+      expect(soql).to eq('SELECT Id, CreatedDate, LastModifiedDate FROM SampleObject')
     end
   end
 
@@ -290,7 +280,7 @@ RSpec.describe SalesforceOrm::ObjectBase do
         :to_soql
       )
 
-      SampleObject.scoped.to_soql
+      SampleObject.all.to_soql
     end
   end
 

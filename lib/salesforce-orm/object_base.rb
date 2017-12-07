@@ -25,7 +25,6 @@ module SalesforceOrm
         :first,
         :last,
         :each,
-        :scoped,
         :all,
         :to_soql,
         :build

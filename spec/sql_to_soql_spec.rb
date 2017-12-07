@@ -3,6 +3,10 @@ require_relative 'fixtures/sample_object'
 
 RSpec.describe SalesforceOrm::SqlToSoql do
 
+  before(:each) do
+    SampleObject.field_map = {}
+  end
+
   def remap_sample_object(field_map: nil, data_type_map: nil, object_name: nil)
     old_field_map = SampleObject.field_map
     old_data_type_map = SampleObject.data_type_map
