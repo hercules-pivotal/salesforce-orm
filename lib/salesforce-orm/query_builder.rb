@@ -7,11 +7,7 @@ module SalesforceOrm
     DUMMY_TABLE_NAME = 'table_name'
 
     self.table_name = DUMMY_TABLE_NAME
-    NullDB.configure {|ndb| ndb.project_root = "./"}
 
-    establish_connection(
-      adapter: :nulldb,
-      schema: 'spec/fixtures/schema.rb'
-    )
+    NullDB.configure {|ndb| ndb.project_root = "./"}
   end
 end

@@ -1,6 +1,7 @@
 require 'bundler/setup'
 require 'salesforce-orm'
 require 'byebug'
+require 'nulldb_rspec'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -12,4 +13,7 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  NULL_DB_OPTIONS = {schema: "./spec/fixtures/schema.rb"}
 end
+

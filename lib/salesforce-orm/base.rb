@@ -2,6 +2,8 @@ require 'forwardable'
 require 'time'
 require_relative 'sql_to_soql'
 
+NULL_DB_OPTIONS = {}
+
 module SalesforceOrm
   class Base
 
@@ -25,7 +27,12 @@ module SalesforceOrm
 
       @klass = klass
       @client = RestforceClient.instance
-      @builder = QueryBuilder.select(klass.field_map.keys)
+      begin
+        NullDB.nullify(NULL_DB_OPTIONS)
+        @builder = QueryBuilder.select(klass.field_map.keys)
+      ensure
+        NullDB.restore
+      end
       where(RecordTypeManager::FIELD_NAME => klass.record_type_id) if klass.record_type_id
     end
 

@@ -38,6 +38,14 @@ module SalesforceOrm
         find_by_id(*args)
       end
 
+      def find_by(args)
+        where(args).first
+      end
+
+      def find_by!(*args)
+        find_by(*args) or raise RecordNotFound.new("Couldn't find #{name}", name)
+      end
+
       def method_missing(method, *args, &block)
         regex = /^find_by_(.+)$/
         if method =~ regex
